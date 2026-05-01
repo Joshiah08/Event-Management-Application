@@ -1,57 +1,37 @@
 import { useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import './App.css'
 import Landing from './Landing'
 import Login from './Login'
 import Home from './Home'
 
-function AppRoutes() {
-  const navigate = useNavigate()
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('landing')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userEmail, setUserEmail] = useState('')
 
   const handleGetStarted = () => {
-    navigate('/login')
+    setCurrentPage('login')
   }
 
   const handleLogin = (email) => {
     setUserEmail(email)
     setIsLoggedIn(true)
-    navigate('/home')
+    setCurrentPage('home')
   }
 
   const handleLogout = () => {
     setUserEmail('')
     setIsLoggedIn(false)
-    navigate('/')
+    setCurrentPage('landing')
   }
 
-  return (
-    <Routes>
-      <Route path="/" element={<Landing onGetStarted={handleGetStarted} />} />
-      <Route
-        path="/login"
-        element={<Login onLogin={handleLogin} onBack={() => navigate('/')} />}
-      />
-      <Route
-        path="/home"
-        element={
-          isLoggedIn ? (
-            <Home userEmail={userEmail} onLogout={handleLogout} />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  )
-}
+  if (currentPage === 'home' && isLoggedIn) {
+    return <Home userEmail={userEmail} onLogout={handleLogout} />
+  }
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  )
+  if (currentPage === 'login') {
+    return <Login onLogin={handleLogin} onBack={() => setCurrentPage('landing')} />
+  }
+
+  return <Landing onGetStarted={handleGetStarted} />
 }
